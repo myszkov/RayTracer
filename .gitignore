@@ -16,6 +16,15 @@
 # Mono auto generated files
 mono_crash.*
 
+# Ray Tracer output files
+*.ppm
+
+# CMake build directory
+build/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
