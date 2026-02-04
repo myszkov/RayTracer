@@ -7,18 +7,20 @@
  * a given range and records information about the intersection.
  *
  * hit_record stores: intersection point, surface normal, distance along ray,
- * and the object's color.
+ * and a pointer to the object's material.
  */
 #include "vec3.h"
 #include "ray.h"
 #include "color.h"
+
+class material;  // Forward declaration
 
 // Stores information about a ray hit
 struct hit_record {
     vec3 point;      // Where the ray hit
     vec3 normal;     // Surface normal at that point
     double t;        // Distance along the ray
-    color object_color; // The colour of the object that was hit
+    const material* mat_ptr;  // The material of the object that was hit
 };
 
 // Any object in the scene inherits from this
