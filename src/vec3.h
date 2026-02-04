@@ -12,6 +12,7 @@
  */
 #include <cmath>
 #include <iostream>
+#include <random>
 
 class vec3 {
 public:
@@ -94,4 +95,22 @@ inline vec3 operator*(const vec3& u, const vec3& v) {
 
 inline vec3 unit_vector(const vec3& v) {
     return v / v.length();
+}
+
+inline double random_double() {
+    static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
+inline double random_double(double min, double max) {
+    return min + (max - min) * random_double();
+}
+
+inline vec3 random_vec3() {
+    return vec3(random_double(), random_double(), random_double());
+}
+
+inline vec3 random_vec3(double min, double max) {
+    return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
 }

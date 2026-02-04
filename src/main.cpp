@@ -48,6 +48,7 @@ int main() {
     const int image_width = 400;
     const int image_height = 400;
     const int max_depth = 10;
+    const int samples_per_pixel = 16;  // Number of rays per pixel for anti-aliasing
 
     double viewport_height = 2.0;
     double viewport_width = 2.0;
@@ -55,15 +56,15 @@ int main() {
 
     // Create materials
     lambertian mat_diffuse_red(color(0.8, 0.2, 0.3));
-    metal mat_metal_blue(color(0.6, 0.7, 0.9));  // Changed blue to metal
+    metal mat_metal_blue(color(0.6, 0.7, 0.9));
     metal mat_metal_green(color(0.2, 0.8, 0.3));
-    lambertian mat_ground(color(0.5, 0.5, 0.5));  // Grey ground
+    lambertian mat_ground(color(0.5, 0.5, 0.5));
 
-    // Set up the scene with different materials
-    sphere s1(vec3(0, 0, -1), 0.5, &mat_diffuse_red);         // Red diffuse sphere
-    sphere s2(vec3(-0.7, 0.3, -1.2), 0.3, &mat_metal_blue);   // Blue METAL sphere
-    sphere s3(vec3(0.7, -0.2, -0.8), 0.25, &mat_metal_green); // Green metal sphere
-    sphere ground(vec3(0, -100.5, -1), 100, &mat_ground);     // Large sphere acts as ground
+    // Set up the scene
+    sphere s1(vec3(0, 0, -1), 0.5, &mat_diffuse_red);
+    sphere s2(vec3(-0.7, 0.3, -1.2), 0.3, &mat_metal_blue);
+    sphere s3(vec3(0.7, -0.2, -0.8), 0.25, &mat_metal_green);
+    sphere ground(vec3(0, -100.5, -1), 100, &mat_ground);
 
     scene world;
     world.add(&s1);
@@ -80,13 +81,23 @@ int main() {
     for (int j = image_height - 1; j >= 0; j--) {
         std::cout << "Scanline: " << j << std::endl;
         for (int i = 0; i < image_width; i++) {
-            double u = (2.0 * i / (image_width - 1)) - 1.0;
-            double v = (2.0 * j / (image_height - 1)) - 1.0;
+            color pixel_color(0, 0, 0);
 
-            vec3 direction(u * viewport_width / 2.0, v * viewport_height / 2.0, -1.0);
-            ray r(camera_origin, direction);
+            // Shoot multiple rays per pixel and average the results
+            for (int s = 0; s < samples_per_pixel; s++) {
+                // Add random offset within the pixel
+                double u = (2.0 * (i + random_double()) / (image_width - 1)) - 1.0;
+                double v = (2.0 * (j + random_double()) / (image_height - 1)) - 1.0;
 
-            color pixel_color = ray_color(r, world, max_depth);
+                vec3 direction(u * viewport_width / 2.0, v * viewport_height / 2.0, -1.0);
+                ray r(camera_origin, direction);
+
+                pixel_color += ray_color(r, world, max_depth);
+            }
+
+            // Average the samples
+            pixel_color = pixel_color / samples_per_pixel;
+
             write_color(img, pixel_color);
         }
     }
