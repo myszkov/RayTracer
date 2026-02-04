@@ -1,4 +1,15 @@
 #pragma once
+/*
+ * vec3.h - 3D Vector Mathematics
+ *
+ * Provides a vec3 class for 3D vector operations. This is the foundation
+ * of the entire ray tracer - used for positions, directions, colors, and normals.
+ *
+ * Key operations:
+ * - Basic arithmetic: addition, subtraction, scalar multiplication/division
+ * - Vector operations: dot product, cross product, normalization
+ * - Length calculations for distance and magnitude computations
+ */
 #include <cmath>
 #include <iostream>
 

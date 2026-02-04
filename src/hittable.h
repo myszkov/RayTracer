@@ -1,4 +1,14 @@
 #pragma once
+/*
+ * hittable.h - Abstract Base Class for Scene Objects
+ *
+ * Defines the interface that all objects in the scene must implement.
+ * The hit() function tests whether a ray intersects the object within
+ * a given range and records information about the intersection.
+ *
+ * hit_record stores: intersection point, surface normal, distance along ray,
+ * and the object's color.
+ */
 #include "vec3.h"
 #include "ray.h"
 #include "color.h"

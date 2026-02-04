@@ -1,4 +1,12 @@
 #pragma once
+/*
+ * scene.h - Scene Management
+ *
+ * Manages all objects in the scene and performs ray intersection tests
+ * against all of them. The hit() function finds the closest object that
+ * a given ray intersects, which is essential for proper rendering and
+ * occlusion (objects blocking other objects).
+ */
 #include <vector>
 #include "hittable.h"
 

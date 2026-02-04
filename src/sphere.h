@@ -1,4 +1,13 @@
 #pragma once
+/*
+ * sphere.h - Sphere Geometry
+ *
+ * Implements ray-sphere intersection using the quadratic equation.
+ * A sphere is defined by its center point, radius, and color.
+ *
+ * The hit() function solves for where a ray intersects the sphere's surface
+ * by treating it as a quadratic equation and finding the discriminant.
+ */
 #include "hittable.h"
 
 class sphere : public hittable {

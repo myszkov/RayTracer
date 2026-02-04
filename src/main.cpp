@@ -13,7 +13,15 @@ color ray_color(const ray& r, const scene& world) {
     hit_record rec;
 
     if (world.hit(r, 0.001, 1e9, rec)) {
-        return calculate_diffuse(rec.point, rec.normal, light, rec.object_color);
+        // Check if this point is in shadow
+        vec3 light_dir = light.position - rec.point;
+        double light_distance = light_dir.length();
+        ray shadow_ray(rec.point, unit_vector(light_dir));
+
+        hit_record shadow_rec;
+        bool in_shadow = world.hit(shadow_ray, 0.001, light_distance, shadow_rec);
+
+        return calculate_diffuse(rec.point, rec.normal, light, rec.object_color, in_shadow);
     }
 
     // Sky gradient background
@@ -33,7 +41,7 @@ int main() {
     // Set up the scene with multiple spheres
     sphere s1(vec3(0, 0, -1), 0.5, color(0.8, 0.2, 0.3));      // Red sphere in the centre
     sphere s2(vec3(-0.7, 0.3, -1.2), 0.3, color(0.2, 0.5, 0.8)); // Blue sphere to the left
-    sphere s3(vec3(0.7, -0.2, -0.8), 0.25, color(0.2, 0.8, 0.3)); // Green sphere to the right
+    sphere s3(vec3(0.5, -0.2, -0.8), 0.25, color(0.2, 0.8, 0.3)); // Green sphere to the right
 
     scene world;
     world.add(&s1);

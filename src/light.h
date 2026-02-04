@@ -1,4 +1,14 @@
 #pragma once
+/*
+ * light.h - Lighting Calculations
+ *
+ * Defines a point light source (position and intensity/color).
+ *
+ * calculate_diffuse() implements Lambertian diffuse shading - surfaces are
+ * brighter when facing the light directly, darker at grazing angles.
+ * Includes ambient lighting so shadowed areas aren't completely black.
+ * The is_shadowed parameter allows shadow rays to block direct lighting.
+ */
 #include "vec3.h"
 #include "color.h"
 
@@ -13,21 +23,19 @@ struct point_light {
 };
 
 // Calculates diffuse lighting at a point on a surface
-// hit_point  - where the ray hit the surface
-// normal     - the surface normal at that point
-// light      - the light source
-// obj_color  - the base color of the object
+// is_shadowed - whether this point is blocked from the light
 inline color calculate_diffuse(const vec3& hit_point, const vec3& normal,
-    const point_light& light, const color& obj_color) {
-    // Direction from hit point to light
+    const point_light& light, const color& obj_color,
+    bool is_shadowed) {
     vec3 light_dir = unit_vector(light.position - hit_point);
-
-    // How much light hits this surface
-    // Clamped to 0 if negative (light is behind the surface)
     double diffuse_amount = std::max(0.0, dot(normal, light_dir));
 
-    // Add a small ambient term so nothing is completely black
     double ambient = 0.1;
+
+    // If in shadow, only use ambient lighting
+    if (is_shadowed) {
+        return obj_color * ambient * light.intensity;
+    }
 
     return obj_color * (ambient + diffuse_amount * (1.0 - ambient)) * light.intensity;
 }

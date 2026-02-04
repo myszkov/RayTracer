@@ -1,5 +1,14 @@
 #pragma once
+/*
+ * ray.h - Ray Representation
+ *
+ * Defines a ray as an origin point and a direction vector.
+ * Rays are cast from the camera through each pixel to determine what objects
+ * are visible. The at(t) function returns points along the ray, used for
+ * intersection testing and finding hit points.
+ */
 #include "vec3.h"
+
 
 class ray {
 public:
