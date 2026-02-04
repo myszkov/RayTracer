@@ -7,6 +7,7 @@
 #include "light.h"
 #include "scene.h"
 #include "material.h"
+#include "texture.h"
 
 const point_light light(vec3(2, 3, 1), color(1, 1, 1));
 
@@ -24,7 +25,7 @@ color ray_color(const ray& r, const scene& world, int depth) {
         if (rec.mat_ptr->scatter(r, rec.point, rec.normal, scattered_direction)) {
             // This is a reflective material - shoot a new ray in the reflected direction
             ray scattered(rec.point, scattered_direction);
-            return rec.mat_ptr->get_color() * ray_color(scattered, world, depth - 1);
+            return rec.mat_ptr->get_color(rec.point) * ray_color(scattered, world, depth - 1);
         }
 
         // Otherwise it's a lambertian material - do normal diffuse shading
@@ -35,7 +36,7 @@ color ray_color(const ray& r, const scene& world, int depth) {
         hit_record shadow_rec;
         bool in_shadow = world.hit(shadow_ray, 0.001, light_distance, shadow_rec);
 
-        return calculate_diffuse(rec.point, rec.normal, light, rec.mat_ptr->get_color(), in_shadow);
+        return calculate_diffuse(rec.point, rec.normal, light, rec.mat_ptr->get_color(rec.point), in_shadow);
     }
 
     // Sky gradient background
@@ -48,23 +49,38 @@ int main() {
     const int image_width = 400;
     const int image_height = 400;
     const int max_depth = 10;
-    const int samples_per_pixel = 16;  // Number of rays per pixel for anti-aliasing
+    const int samples_per_pixel = 16;
 
     double viewport_height = 2.0;
     double viewport_width = 2.0;
     vec3 camera_origin(0, 0, 0);
 
-    // Create materials
-    lambertian mat_diffuse_red(color(0.8, 0.2, 0.3));
-    metal mat_metal_blue(color(0.6, 0.7, 0.9));
-    metal mat_metal_green(color(0.2, 0.8, 0.3));
-    lambertian mat_ground(color(0.5, 0.5, 0.5));
+    // Create textures
+    solid_color red_texture(0.8, 0.2, 0.3);
+    solid_color gold_color(0.9, 0.7, 0.2);
+    solid_color green_color(0.2, 0.8, 0.3);
+
+    // Checkerboard for the ground
+    solid_color white(1.0, 1.0, 1.0);
+    solid_color black(0.1, 0.1, 0.1);
+    checker_texture ground_checker(&white, &black, 10.0);
+
+    // Stripe texture for one sphere
+    solid_color orange(1.0, 0.5, 0.0);
+    solid_color purple(0.5, 0.0, 0.8);
+    stripe_texture stripe_pattern(&orange, &purple, 5.0);
+
+    // Create materials using textures
+    lambertian mat_diffuse_red(&red_texture);
+    metal mat_metal_gold(&gold_color);
+    lambertian mat_striped(&stripe_pattern);
+    lambertian mat_ground(&ground_checker);
 
     // Set up the scene
     sphere s1(vec3(0, 0, -1), 0.5, &mat_diffuse_red);
-    sphere s2(vec3(-0.7, 0.3, -1.2), 0.3, &mat_metal_blue);
-    sphere s3(vec3(0.7, -0.2, -0.8), 0.25, &mat_metal_green);
-    sphere ground(vec3(0, -100.5, -1), 100, &mat_ground);
+    sphere s2(vec3(-0.7, 0.3, -1.2), 0.3, &mat_metal_gold);
+    sphere s3(vec3(0.7, -0.2, -0.8), 0.25, &mat_striped);  // Striped sphere!
+    sphere ground(vec3(0, -100.5, -1), 100, &mat_ground);   // Checkerboard ground!
 
     scene world;
     world.add(&s1);
@@ -83,9 +99,7 @@ int main() {
         for (int i = 0; i < image_width; i++) {
             color pixel_color(0, 0, 0);
 
-            // Shoot multiple rays per pixel and average the results
             for (int s = 0; s < samples_per_pixel; s++) {
-                // Add random offset within the pixel
                 double u = (2.0 * (i + random_double()) / (image_width - 1)) - 1.0;
                 double v = (2.0 * (j + random_double()) / (image_height - 1)) - 1.0;
 
@@ -95,7 +109,6 @@ int main() {
                 pixel_color += ray_color(r, world, max_depth);
             }
 
-            // Average the samples
             pixel_color = pixel_color / samples_per_pixel;
 
             write_color(img, pixel_color);
