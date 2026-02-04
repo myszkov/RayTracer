@@ -4,4 +4,10 @@ project(RayTracer)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(RayTracer src/main.cpp "src/vec3.h" "src/ray.h" "src/color.h" "src/sphere.h" "src/light.h" "src/hittable.h" "src/scene.h" "src/material.h" "src/texture.h")
+# Comment/uncomment these lines to switch between versions:
+
+# Normal version (default)
+# add_executable(RayTracer src/main.cpp)
+
+# Showcase version (uncomment this and comment the line above)
+add_executable(RayTracer stages/showcase_main.cpp)
